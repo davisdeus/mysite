@@ -18,17 +18,20 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
+    def _prepare(cls, model_class, *args, **kwargs):
         password = kwargs.pop("password", None)
-        user = super(UserFactory, cls)._prepare(create, **kwargs)
+        user = super()._create(model_class, *args, **kwargs)
         if password:
             user.set_password(password)
-            if create:
-                user.save()
+            user.save()
             return user
         
 class PostFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Post
+        
     title = factory.LazyAttribute(lambda x: faker.sentence())
+    slug = factory.LazyAttribute(lambda x: faker.slug())
     created_on = factory.LazyAttribute(lambda x: now())
     author = factory.SubFactory(UserFactory)
     status = 0
