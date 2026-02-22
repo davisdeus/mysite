@@ -16,26 +16,22 @@ class UserFactory(factory.django.DjangoModelFactory):
     email = factory.Faker("safe_email")
     username = factory.LazyAttribute(lambda x: faker.name())
 
-
     @classmethod
-    def _prepare(cls, model_class, *args, **kwargs):
+    def _prepare(cls, create, **kwargs):
         password = kwargs.pop("password", None)
-        user = super()._create(model_class, *args, **kwargs)
+        user = super(UserFactory, cls)._prepare(create, **kwargs)
         if password:
             user.set_password(password)
-            user.save()
-            return user
-        
+            if create:
+                user.save()
+        return user
+
+
 class PostFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Post
-        
     title = factory.LazyAttribute(lambda x: faker.sentence())
-    slug = factory.LazyAttribute(lambda x: faker.slug())
     created_on = factory.LazyAttribute(lambda x: now())
     author = factory.SubFactory(UserFactory)
     status = 0
-
 
     class Meta:
         model = Post
